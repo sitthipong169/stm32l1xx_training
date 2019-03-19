@@ -38,8 +38,8 @@ void GPIO_setup(void);
 void USART1_setup(void);
 /* Private user define functions ---------------------------------------------------------*/
 void delay(unsigned long ms);
-void usart1_putc(unsigned char c);
-void usart1_puts(unsigned char *s);
+void usart1_putc(char c);
+void usart1_puts(char *s);
 int usart1_getc(void);
 /**
   * @brief  Main program.
@@ -113,13 +113,13 @@ void USART1_setup(void)
   USART_Cmd(USART1,ENABLE);
 }
 //Function Usart1 send 1 character
-void usart1_putc(unsigned char c)
+void usart1_putc(char c)
 {
   while(USART_GetFlagStatus(USART1,USART_FLAG_TXE)==RESET); //wait until transmittion readdy
   USART_SendData(USART1,(int)c);
 }
 //Function Usart1 send string
-void usart1_puts(unsigned char *s)
+void usart1_puts(char *s)
 {
   while(*s) // Check end of string
   {
