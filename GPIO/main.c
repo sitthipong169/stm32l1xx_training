@@ -33,7 +33,7 @@
   */
 
 /* Private setup functions ---------------------------------------------------------*/
-void RCC_setup(void);
+void RCC_setup_HSI(void);
 void GPIO_setup(void);
 
 /* Private user define functions ---------------------------------------------------------*/
@@ -45,23 +45,23 @@ void delay(unsigned long ms);
   */
 int main(void)
 {
-  RCC_setup();
+  RCC_setup_HSI();
   GPIO_setup();
   while (1)
   {
     /* LED at PB9 ON */
-		GPIO_SetBits(GPIOB,GPIO_Pin_9);
+    GPIO_SetBits(GPIOA,GPIO_Pin_2 | GPIO_Pin_3);
 		/* Delay 0.5 sec */
-		delay(500);
+		delay(5);
 		/* LED at PB9 OFF */
-		GPIO_ResetBits(GPIOB,GPIO_Pin_9);
-		/* Delay 0.5 sec */
-		delay(500);
+		GPIO_ResetBits(GPIOA,GPIO_Pin_2 | GPIO_Pin_3);
+		//  Delay 0.5 sec 
+		delay(5);
   }
 }
 
 /*---------------------Function----------------------------*/
-void RCC_setup(void)
+void RCC_setup_HSI(void)
 {
   /* RCC system reset(for debug purpose) */
   RCC_DeInit();
@@ -78,6 +78,27 @@ void RCC_setup(void)
   /* Set HSI Clock Source */
   RCC_SYSCLKConfig(RCC_SYSCLKSource_HSI);
   /* Wait Clock source stable */
+  while(RCC_GetSYSCLKSource()!=0x04);
+}
+/*---------------------Function----------------------------*/
+void RCC_setup_MSI(void)
+{
+  /* RCC system reset(for debug purpose) */
+  RCC_DeInit();
+  /* Enable Internal Clock HSI */
+  RCC_MSIRangeConfig(RCC_MSIRange_0);
+  RCC_MSICmd(ENABLE);
+  /* Wait till HSI is Ready */
+  while(RCC_GetFlagStatus(RCC_FLAG_MSIRDY)==RESET);
+  RCC_HCLKConfig(RCC_SYSCLK_Div1);
+  RCC_PCLK1Config(RCC_HCLK_Div2);
+  RCC_PCLK2Config(RCC_HCLK_Div2);
+  FLASH_SetLatency(FLASH_Latency_0);
+  /* Enable PrefetchBuffer */
+  FLASH_PrefetchBufferCmd(ENABLE);
+  /* Set HSI Clock Source */
+  RCC_SYSCLKConfig(RCC_SYSCLKSource_MSI);
+  /* Wait Clock source stable */
   while(RCC_GetSYSCLKSource()!=0x00);
 }
 
@@ -86,12 +107,14 @@ void GPIO_setup(void)
 	/* GPIO Sturcture */
 	GPIO_InitTypeDef GPIO_InitStructure;
 	/* Enable Peripheral Clock AHB for GPIOB */
-  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB,ENABLE);
+  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA,ENABLE);
 	/* Configure PC13 as Output push-pull */
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2 | GPIO_Pin_3 ;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_40MHz;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
 }
 // delay 1 ms per count @ Crystal 16.0 MHz 
 void delay(unsigned long ms)
