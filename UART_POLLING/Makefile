@@ -113,6 +113,9 @@ clean:
 #flash:
 #	$(GDB) firmware.elf -x ./bmp_flash.gdb
 
+#execute gdbtui
+gdbtui:
+	$(GDB) -tui -x ./openocd_gdb.gdb
 #Start CGDB with Black Magic Probe(BMP)
 cgdb:
 	cgdb -d $(GDB) firmware.elf -x ./bmp_gdb.gdb
@@ -124,7 +127,7 @@ flash_openocd:
 	-c "transport select hla_swd" \
 	-f target/stm32l1.cfg \
 	-c "init" \
-	-c "reset init" \
+	-c "reset_config srst_nogate" \
 	-c "halt" \
 	-c "flash write_image erase $(EXECUTABLE)" \
 	-c "verify_image $(EXECUTABLE)" \
