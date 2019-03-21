@@ -50,11 +50,11 @@ int main(void)
   while (1)
   {
     /* LED at PB9 ON */
-		GPIO_SetBits(GPIOB,GPIO_Pin_9);
+		GPIO_SetBits(GPIOB,GPIO_Pin_7);
 		/* Delay 0.5 sec */
 		delay(500);
 		/* LED at PB9 OFF */
-		GPIO_ResetBits(GPIOB,GPIO_Pin_9);
+		GPIO_ResetBits(GPIOB,GPIO_Pin_7);
 		/* Delay 0.5 sec */
 		delay(500);
   }
@@ -78,7 +78,7 @@ void RCC_setup(void)
   /* Set HSI Clock Source */
   RCC_SYSCLKConfig(RCC_SYSCLKSource_HSI);
   /* Wait Clock source stable */
-  while(RCC_GetSYSCLKSource()!=0x00);
+  while(RCC_GetSYSCLKSource()!=0x04);
 }
 
 void GPIO_setup(void)
@@ -88,7 +88,7 @@ void GPIO_setup(void)
 	/* Enable Peripheral Clock AHB for GPIOB */
   RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB,ENABLE);
 	/* Configure PC13 as Output push-pull */
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_40MHz;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
