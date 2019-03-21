@@ -79,7 +79,7 @@ void RCC_setup(void)
   /* Set HSI Clock Source */
   RCC_SYSCLKConfig(RCC_SYSCLKSource_HSI);
   /* Wait Clock source stable */
-  while(RCC_GetSYSCLKSource()!=0x00);
+  while(RCC_GetSYSCLKSource()!=0x04);
 }
 
 void GPIO_setup(void)
