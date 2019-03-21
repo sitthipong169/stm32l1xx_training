@@ -61,40 +61,41 @@ int main(void)
 {
   // RCC_setup();
   RCC_setup2();
-  GPIO_setup();
+  // GPIO_setup();
   USART_Config();
   i2c1_Init();
   float rawTemperature = 0;
   float rawHumidity = 0;
-  bool ret = 0;
   double tempTemperature = 0.00;
   double tempHumidity = 0.00;
   while (1)
   {
     /* LED at PB9 ON */
-		GPIO_SetBits(GPIOB,GPIO_Pin_7);
+		// GPIO_SetBits(GPIOB,GPIO_Pin_7);
 		/* Delay 0.5 sec */
-		delay(500);
+		// delay(500);
 		/* LED at PB9 OFF */
-		GPIO_ResetBits(GPIOB,GPIO_Pin_7);
+		// GPIO_ResetBits(GPIOB,GPIO_Pin_7);
 		/* Delay 0.5 sec */
-		delay(500);
+		// delay(500);
     usart1_puts("\rUSART1 ...\r\n");
 
     
-    ret = SHT20ReadTemperature(I2C1, &rawTemperature);
-    // usart1_putc((char)ret);
-    tempTemperature = rawTemperature; // * (175.72 / 65536.0) -46.85;
-    // sprintf(buffer,"%f\r\n",tempTemperature);
-    sprintf(buffer, "Temp: %f\r\n", tempTemperature);
-    usart1_puts(buffer);
-    
+    // ret = SHT20ReadTemperature(I2C1, &rawTemperature);
+    if(SHT20ReadTemperature(I2C1, &rawTemperature))
+    {
+      tempTemperature = rawTemperature; // * (175.72 / 65536.0) -46.85;
+      sprintf(buffer, "Temp: %f\r\n", tempTemperature);
+      usart1_puts(buffer);
+    }
 
-    ret = SHT20ReadHumidity(I2C1, &rawHumidity);
-    tempHumidity = rawHumidity; // * (125/ 65536.0) -6.0;
-    sprintf(buffer, "Humidity: %f\r\n", tempHumidity);
-    usart1_puts(buffer);
-
+    // ret = SHT20ReadHumidity(I2C1, &rawHumidity);
+    if(SHT20ReadHumidity(I2C1, &rawHumidity))
+    {
+      tempHumidity = rawHumidity; // * (125/ 65536.0) -6.0;
+      sprintf(buffer, "Humidity: %f\r\n", tempHumidity);
+      usart1_puts(buffer);
+    }
   }
 }
 
@@ -161,14 +162,11 @@ void delay(unsigned long ms)
 
 static void USART_Config(void)
 {
-    I2C_DeInit(I2C1);
-
   USART_InitTypeDef USART_InitStructure;
   GPIO_InitTypeDef GPIO_InitStructure;
   RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
   /* Enable GPIO clock */
   RCC_AHBPeriphClockCmd(USARTx_TX_GPIO_CLK | USARTx_RX_GPIO_CLK, ENABLE);
-  
   
   /* Enable USART clock */
   USARTx_APBPERIPHCLOCK(USARTx_CLK, ENABLE);
@@ -212,66 +210,9 @@ static void USART_Config(void)
 }
 
 
-void i2c1_DeInit(void)
-{
-  GPIO_InitTypeDef  GPIO_InitStructure;
-
-  /*!< Disable LM75_I2C */
-  I2C_Cmd(I2C1, DISABLE);
-  
-  /*!< DeInitializes the LM75_I2C */
-  I2C_DeInit(I2C1);
-  
-  /*!< LM75_I2C Periph clock disable */
-  RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, DISABLE);
-    
-  /*!< Configure LM75_I2C pins: SCL */
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
-  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
-
-  /*!< Configure LM75_I2C pins: SDA */
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7;
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
-
-  /*!< Configure LM75_I2C pin: SMBUS ALERT */
-  /*
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
-  GPIO_Init(GPIOB, &GPIO_InitStructure);
-  */
-}
-
-// void I2C1_init(void)
-// {
-    // I2C_InitTypeDef  I2C_InitStructure;
-    // GPIO_InitTypeDef  GPIO_InitStructure;
-
-    // RCC_APB1PeriphClockCmd(RCC_APB1Periph_I2C1, ENABLE);
-    // RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB, ENABLE);
-
-    /* Configure I2C_EE pins: SCL and SDA */
-    // GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_6 | GPIO_Pin_7;
-    // GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-    // GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_OD;
-    // GPIO_Init(GPIOB, &GPIO_InitStructure);
-
-    /* I2C configuration */
-    // I2C_InitStructure.I2C_Mode = I2C_Mode_I2C;
-    // I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_2;
-    // I2C_InitStructure.I2C_OwnAddress1 = 0x38;
-    // I2C_InitStructure.I2C_Ack = I2C_Ack_Enable;
-    // I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
-    // I2C_InitStructure.I2C_ClockSpeed = 100000;
-
-    /* I2C Peripheral Enable */
-    // I2C_Cmd(I2C1, ENABLE);
-    /* Apply I2C configuration after enabling it */
-    // I2C_Init(I2C1, &I2C_InitStructure);
-// }
-
 void i2c1_Init(void)
 {
+  I2C_DeInit(I2C1);
   I2C_InitTypeDef   I2C_InitStructure;
   GPIO_InitTypeDef  GPIO_InitStructure;
   // i2c1_DeInit();
@@ -288,10 +229,7 @@ void i2c1_Init(void)
   /* Connect PXx to I2C_SDA */
   GPIO_PinAFConfig(GPIOB, GPIO_PinSource7, GPIO_AF_I2C1); 
 
-  /* Connect PXx to I2C_SMBUSALER */
-  // GPIO_PinAFConfig(GPIOB, GPIO_PinSource5, GPIO_AF_I2C1);   
-   
-  /*!< Configure LM75_I2C pins: SCL and SDA*/
+  /*!< Configure I2C1 pins: SCL and SDA*/
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6 | GPIO_Pin_7;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_40MHz;
@@ -302,27 +240,6 @@ void i2c1_Init(void)
   I2C_Init(I2C1, &I2C_InitStructure);
 
   I2C_Cmd(I2C1, ENABLE);
-
-  /*!< Configure LM75_I2C pins: SDA */
-  // GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7;
-  // GPIO_Init(GPIOB, &GPIO_InitStructure);
-  
-  // I2C_DeInit(I2C1);
-
-  /*!< LM75_I2C Init */
-  // I2C_InitStructure.I2C_Mode = I2C_Mode_SMBusHost;
-  // I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_2;
-  // I2C_InitStructure.I2C_OwnAddress1 = 0x38;
-  // I2C_InitStructure.I2C_Ack = I2C_Ack_Enable;
-  // I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
-  // I2C_InitStructure.I2C_ClockSpeed = 100000;
-  // I2C_Init(I2C1, &I2C_InitStructure);
-
-  /*!< Enable SMBus Alert interrupt */
-  // I2C_ITConfig(I2C1, I2C_IT_ERR, ENABLE);
-
-  /*!< LM75_I2C Init */
-  // I2C_Cmd(I2C1, ENABLE);
 }
 
 //Function Usart1 send 1 character
@@ -339,8 +256,6 @@ void usart1_puts(char *s)
     usart1_putc(*s++); //send character 1 time
   }
 }
-
-
 
 bool SHT20ReadTemperature(I2C_TypeDef* i2c, float* raw)
 {
@@ -386,10 +301,11 @@ bool SHT20ReadTemperature(I2C_TypeDef* i2c, float* raw)
   result = (msb << 8) | lsb;
 
   //check xsb
-  if(SHT20CheckCRC(result, xsb)){
-  	result &= 0xFFFC;
-  	*raw = result * (175.72 / 65536.0) - 46.85;
-  	return true;
+  if(SHT20CheckCRC(result, xsb))
+  {
+    result &= 0xFFFC;
+    *raw = result * (175.72 / 65536.0) - 46.85;
+    return true;
   }
 
   return false;
@@ -440,9 +356,9 @@ bool SHT20ReadHumidity(I2C_TypeDef* i2c, float* raw)
 
   //check xsb
   if(SHT20CheckCRC(result, xsb)){
-  	result &= 0xFFFC;
-  	*raw = result *(125.0/ 65536.0) - 6.0;
-  	return true;
+    result &= 0xFFFC;
+    *raw = result *(125.0/ 65536.0) - 6.0;
+    return true;
   }
 
   return false;
@@ -460,10 +376,11 @@ bool SHT20CheckCRC(uint16_t data, uint8_t crc_value){
         divisor >>= 1;
     }
 
-    if(remainder == 0){
-    	return true;
+    if(remainder == 0)
+    {
+      return true;
     }
-    return false;
+      return false;
 }
 
 
