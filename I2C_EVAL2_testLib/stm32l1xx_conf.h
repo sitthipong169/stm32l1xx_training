@@ -59,6 +59,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "SHT20.h"
+#include "PH_OEM.h"
 
 /* High level functions for NVIC and SysTick (add-on to CMSIS functions) */
 

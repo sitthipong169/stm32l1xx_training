@@ -42,7 +42,8 @@ USER_LIB=../User_Lib
 #User Source Files
 SRC+=	./main.c \
 		./stm32l1xx_it.c \
-		./SHT20.c
+		./SHT20.c \
+		./PH_OEM.c
 
 
 
