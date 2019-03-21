@@ -1,4 +1,4 @@
-#include "PH_OEM.h"
+#include "PH_OEM.h"bfbeec1c8367191b5bc5337cc2b689a543678cc7bfbeec1c8367191b5bc5337cc2b689a543678cc7
 bool OEM_READ_PH(I2C_TypeDef* i2c, float* raw)
 {
   unsigned long result=0;
@@ -10,7 +10,6 @@ bool OEM_READ_PH(I2C_TypeDef* i2c, float* raw)
   uint8_t bit3=0;
   uint8_t bit4=0;
 
-  // delay(100);
   I2C_AcknowledgeConfig(i2c,ENABLE);
   I2C_GenerateSTART(i2c,ENABLE);
   while (!I2C_CheckEvent(i2c, I2C_EVENT_MASTER_MODE_SELECT));
@@ -40,11 +39,9 @@ bool OEM_READ_PH(I2C_TypeDef* i2c, float* raw)
   I2C_AcknowledgeConfig(i2c, DISABLE);
   I2C_GenerateSTOP(i2c, ENABLE);
   
-  
   while (!I2C_CheckEvent(i2c, I2C_EVENT_MASTER_BYTE_RECEIVED));
   I2C_ReceiveData(i2c);
 
-  // result = (msb << 8) | lsb;
   result = (bit1 << 24) | (bit2 << 16) | (bit3 << 8) | bit4;
   *raw = ((float)result)/1000;
   return true;

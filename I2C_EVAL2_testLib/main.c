@@ -43,6 +43,8 @@ void usart1_putc(char c);
 void usart1_puts(char *s);
 void i2c1_DeInit(void);
 void i2c1_Init(void);
+void GPIO_conf(void);
+
 
 
 /* Private user define functions ---------------------------------------------------------*/
@@ -61,17 +63,27 @@ int main(void)
 {
   // RCC_setup();
   RCC_setup2();
+  GPIO_conf();
+  // GPIO_SetBits(GPIOB,GPIO_Pin_9);
+
   // GPIO_setup();
   USART_Config();
   i2c1_Init();
-  // float rawTemperature = 0;
-  // float rawHumidity = 0;
+  float rawTemperature = 0;
+  float rawHumidity = 0;
   float rawPHsensor = 0;
-  // double tempTemperature = 0.00;
-  // double tempHumidity = 0.00;
+  double tempTemperature = 0.00;
+  double tempHumidity = 0.00;
   double tempPH = 0.00;
+
+
   while (1)
-  {
+  {  
+
+
+    // GPIO_ResetBits(GPIOB,GPIO_Pin_5);
+    // GPIO_SetBits(GPIOB,GPIO_Pin_5);
+    // GPIO_SetBits(GPIOB,GPIO_Pin_8);
     usart1_puts("start\r\n");
     
     /* LED at PB9 ON */
@@ -84,13 +96,36 @@ int main(void)
 		// delay(500);
     usart1_puts("\rUSART1 ...\r\n");
 
+    // GPIO_SetBits(GPIOB,GPIO_Pin_9);
+GPIO_SetBits(GPIOB,GPIO_Pin_9);
+    delay(5000);
+    // GPIO_SetBits(GPIOB,GPIO_Pin_8);
+    // delay(200);
+    usart1_puts("\rStartTo ...\r\n");
+
+    if(SHT20ReadTemperature(I2C1, &rawTemperature))
+    {
+      tempTemperature = rawTemperature; // * (175.72 / 65536.0) -46.85;
+      sprintf(buffer, "Temp: %f\r\n", tempTemperature);
+      usart1_puts(buffer);
+    }
+    if(SHT20ReadHumidity(I2C1, &rawHumidity))
+    {
+      tempHumidity = rawHumidity; // * (125/ 65536.0) -6.0;
+      sprintf(buffer, "Humidity: %f\r\n", tempHumidity);
+      usart1_puts(buffer);
+    }
+    // GPIO_ResetBits(GPIOB,GPIO_Pin_9);
+
+    // GPIO_ResetBits(GPIOB,GPIO_Pin_8);
+    // delay(200);
+    // GPIO_SetBits(GPIOB,GPIO_Pin_9);
     // if(SHT20ReadTemperature(I2C1, &rawTemperature))
     // {
     //   tempTemperature = rawTemperature; // * (175.72 / 65536.0) -46.85;
     //   sprintf(buffer, "Temp: %f\r\n", tempTemperature);
     //   usart1_puts(buffer);
     // }
-
     // if(SHT20ReadHumidity(I2C1, &rawHumidity))
     // {
     //   tempHumidity = rawHumidity; // * (125/ 65536.0) -6.0;
@@ -98,12 +133,19 @@ int main(void)
     //   usart1_puts(buffer);
     // }
 
-    if(OEM_READ_PH(I2C1, &rawPHsensor))
-    {
-      tempPH = rawPHsensor;
-      sprintf(buffer, "PH: %f\r\n", tempPH);
-      usart1_puts(buffer);
-    }
+    // GPIO_ResetBits(GPIOB,GPIO_Pin_9);
+    // delay(200);
+    // GPIO_SetBits(GPIOB,GPIO_Pin_5);
+    // delay(5000);
+    // usart1_puts("Delay");
+    // if(OEM_READ_PH(I2C1, &rawPHsensor))
+    // {
+    //   tempPH = rawPHsensor;
+    //   sprintf(buffer, "PH: %f\r\n", tempPH);
+    //   usart1_puts(buffer);
+    // }
+    // GPIO_ResetBits(GPIOB,GPIO_Pin_5);
+
     
   }
 }
@@ -159,6 +201,18 @@ void GPIO_setup(void)
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_40MHz;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);
+}
+
+void GPIO_conf(void)
+{
+	GPIO_InitTypeDef GPIO_InitStructure;
+  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB,ENABLE);
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5|GPIO_Pin_8|GPIO_Pin_9;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_40MHz;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
 }
 // delay 1 ms per count @ Crystal 16.0 MHz 

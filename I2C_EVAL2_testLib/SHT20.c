@@ -8,17 +8,17 @@ bool SHT20ReadHumidity(I2C_TypeDef* i2c, float* raw)
   uint16_t lsb=0;
   uint8_t xsb=0;
 
-  // send_byte('a');
+  usart1_putc('a');
   I2C_AcknowledgeConfig(i2c,ENABLE);
   I2C_GenerateSTART(i2c,ENABLE);
   while (!I2C_CheckEvent(i2c, I2C_EVENT_MASTER_MODE_SELECT));
-  // send_byte('b');
+  usart1_putc('b');
   I2C_Send7bitAddress(i2c,0x80, I2C_Direction_Transmitter);
   while (!I2C_CheckEvent(i2c, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
-  // send_byte('c');
+  usart1_putc('c');
   I2C_SendData(i2c,0xE5);
   while (!I2C_CheckEvent(i2c, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
-  // send_byte('d');
+  usart1_putc('d');
   I2C_GenerateSTART(i2c,ENABLE);
   while (!I2C_CheckEvent(i2c, I2C_EVENT_MASTER_MODE_SELECT));
 
@@ -61,17 +61,21 @@ bool SHT20ReadTemperature(I2C_TypeDef* i2c, float* raw)
   uint16_t lsb=0;
   uint8_t xsb=0;
 
-  // send_byte('a');
+  usart1_putc('a');
+
+  // GPIO_ResetBits(GPIOB,GPIO_Pin_9);
+
+
   I2C_AcknowledgeConfig(i2c,ENABLE);
   I2C_GenerateSTART(i2c,ENABLE);
   while (!I2C_CheckEvent(i2c, I2C_EVENT_MASTER_MODE_SELECT));
-  // send_byte('b');
+  usart1_putc('b');
   I2C_Send7bitAddress(i2c,0x80, I2C_Direction_Transmitter);
   while (!I2C_CheckEvent(i2c, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
-  // send_byte('c');
+  usart1_putc('c');
   I2C_SendData(i2c,0xE3);
   while (!I2C_CheckEvent(i2c, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
-  // send_byte('d');
+  usart1_putc('d');
   I2C_GenerateSTART(i2c,ENABLE);
   while (!I2C_CheckEvent(i2c, I2C_EVENT_MASTER_MODE_SELECT));
 
